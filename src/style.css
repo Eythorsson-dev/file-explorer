@@ -1,0 +1,40 @@
+.file-explorer-item>.file-explorer-item {
+    margin-left: 1rem;
+}
+
+.file-explorer-item>.container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 3px;
+    padding: 1px 6px;
+}
+
+.file-explorer-item>.container:hover {
+    background: #18181b;
+    border-radius: 3px;
+}
+
+.file-explorer-item>.container:focus {
+    background: #27272a;
+    outline: none;
+}
+
+
+
+.file-explorer-item>.container>.icon {
+    height: 16px
+}
+
+
+.file-explorer-item.folder>.container>.icon {
+    transition: transform .1s ease-in;
+}
+
+.file-explorer-item.folder.collapsed>.container>.icon {
+    transform: rotate(-90deg)
+}
+
+.file-explorer-item.folder.collapsed>.file-explorer-item {
+    display: none;
+}
