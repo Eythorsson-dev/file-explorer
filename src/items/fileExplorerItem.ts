@@ -82,8 +82,12 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
 
     get name(): string { return this.nameElm?.text ?? "" }
 
-    private nameElm: EditableText | undefined
+    protected nameElm: EditableText | undefined
     protected abstract getIcon(): IconElement;
+
+    update(data: T) {
+        this.nameElm!.text = data.name;
+    }
 
     render(data: T) {
         const container = document.createElement("div");

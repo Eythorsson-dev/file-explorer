@@ -51,13 +51,8 @@ export class FolderElement
     override get isFolder(): boolean { return true; }
 
     update(data: FolderData): void {
-        // const wrapper = this.render(data);
-        // if (this.wrapper && this.target.contains(this.wrapper)) {
-        //     this.wrapper.replaceWith(wrapper);
-        // }
-        // else {
-        //     this.target.prepend(wrapper)
-        // }
+        super.update(data)
+        this.isCollapsed = data.isCollapsed;
     }
 
 

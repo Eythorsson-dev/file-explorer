@@ -25,14 +25,4 @@ export class FileElement
     get data(): FileData {
         throw new Error("Method not implemented.");
     }
-
-    update(data: FileData): void {
-        // const wrapper = this.render(data);
-        // if (this.wrapper && this.target.contains(this.wrapper)) {
-        //     this.wrapper.replaceWith(wrapper);
-        // }
-        // else {
-        //     this.target.prepend(wrapper)
-        // }
-    }
 }
