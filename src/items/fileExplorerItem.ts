@@ -137,7 +137,17 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
                 })
             });
 
-        this.target.addEventListener("click", (event) => event.stopPropagation());
+        this.target.addEventListener("click", (event) => {
+            event.stopPropagation()
+
+            this.context.services.eventService.Emit("click", {
+                target: this,
+                ctrl: event.ctrlKey,
+                shift: event.shiftKey,
+                alt: event.altKey,
+                meta: event.metaKey,
+            })
+        });
 
         this.context.services.eventService.On("edit", event => {
             if (this.isEditing && event.target.id != this.id) {

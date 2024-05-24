@@ -1,3 +1,4 @@
+import { ClickEvent } from "./ClickEvent"
 import { FolderCollapseEvent } from "./FolderCollapseEvent"
 import { EditCancelEvent } from "./editCancelEvent"
 import { EditEvent } from "./editEvent"
@@ -9,5 +10,6 @@ export type FileExplorerEventMap = {
     "edit-cancel": EditCancelEvent,
     "edit": EditEvent,
     "folder-expanded": FolderExpandEvent,
-    "folder-collapsed": FolderCollapseEvent
+    "folder-collapsed": FolderCollapseEvent,
+    "click": ClickEvent
 }
