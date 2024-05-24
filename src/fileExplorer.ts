@@ -1,14 +1,13 @@
 import "./style.css"
 
-import { EventHandlerAPI, EventManager, SaveAPI, generateUId, linkedList } from "@eythorsson-dev/common-utils";
+import { EventHandlerAPI, EventManager, SaveAPI, SaveManager, generateUId, linkedList } from "@eythorsson-dev/common-utils";
 import { FolderElement } from "./items/folder";
-import { CustomFileExplorerItem, FileExplorerItemElement, initFileExplorerItem, FileExplorerItem } from "./items/fileExplorerItem";
+import { CustomFileExplorerItem, FileExplorerItemElement, initFileExplorerItem } from "./items/fileExplorerItem";
 import { FileElement } from "./items/file";
 import { FileExplorerEventMap } from "./events";
 import { ItemService } from "./services/itemService";
-
-
-
+import { KeyboardShortcutPlugin } from "./plugins/keyboardShortcutPlugin";
+import { CustomPlugin, initPlugin } from "./plugins/plugin";
 
 export interface EventService extends EventHandlerAPI<FileExplorerEventMap> { };
 
@@ -23,13 +22,14 @@ export interface ServiceContext {
 }
 
 
-interface ItemData<T> extends linkedList.ItemData<T> {
+export interface ItemData<T> extends linkedList.ItemData<T> {
     get type(): string
- }
+}
 
 interface FileExplorerOptions {
     target: HTMLElement,
     itemTypes?: { [key: string]: CustomFileExplorerItem<any> }
+    plugins?: { [key: string]: { plugin: CustomPlugin<any>, config?: any } }
 }
 
 export class FileExplorer {
@@ -55,9 +55,40 @@ export class FileExplorer {
             saveService: this.#createSaveAPI(),
             itemService: new ItemService({ context: this })
         }
+
+        this.#initializePlugins({
+            "keyboardShortcuts": { plugin: KeyboardShortcutPlugin, config: undefined },
+            ...options.plugins
+        });
+
     }
+    
+    #initializePlugins(plugins: { [key: string]: { plugin: CustomPlugin<any>, config?: any } }) {
+        Object.values(plugins)
+            .forEach(plugin => {
+                initPlugin(plugin.plugin, {
+                    context: this,
+                    config: plugin.config
+                });
+            });
+    }
+
     #createSaveAPI(): SaveService {
-        // throw new Error("Method not implemented.");
+        return new SaveManager<ItemData<any>>({
+            OnChanged: () => {
+
+            },
+            Insert: (data) => {
+                this.upsert(data);
+            },
+            Update: (data) => {
+                this.upsert(data);
+            },
+            Delete: (data) => {
+                this.getItemById(data.id)
+                    ?.remove();
+            },
+        })
     }
 
     get value(): ItemData<any>[] {
@@ -82,7 +113,7 @@ export class FileExplorer {
         })
     }
 
-    createItem<T>(type: string, id: string = generateUId(), data: T | undefined = undefined) {
+    createItem<T>(type: string, id: string = generateUId(), data: T | undefined = undefined, isNew: boolean = false) {
         var itemConfig = this.#itemByType?.[type];
         if (itemConfig == undefined) {
             throw new Error("Item type missing. Please make sure the block ('" + <string>type + "') is registered correctly");
@@ -93,7 +124,9 @@ export class FileExplorer {
             {
                 id: id,
                 data: data,
-                type: type
+                type: type,
+                isNew: isNew,
+                context: this
             }
         );
     }
@@ -107,7 +140,7 @@ export class FileExplorer {
             return [this.#rootItem!, ...linkedList.getNextSiblings(this.#rootItem!)]
 
         const parent = this.getItemById(id);
-        if (parent!.firstChildItem) return [];
+        if (parent!.firstChildItem == undefined) return [];
 
         return [parent!.firstChildItem!, ...linkedList.getNextSiblings(parent!.firstChildItem!)];
     }

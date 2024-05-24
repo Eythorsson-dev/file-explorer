@@ -17,7 +17,7 @@ export class FolderElement
     constructor(options: FileExplorerItemOptions<FolderData>) {
         super(options);
 
-        this.isCollapsed = options.data.isCollapsed;
+        this.#toggleCollapsed(options.data.isCollapsed, false);
 
         this.target.addEventListener("click", (event) => {
             this.isCollapsed = !this.isCollapsed;
@@ -25,8 +25,7 @@ export class FolderElement
             event.stopPropagation();
         });
 
-        (this.target.firstElementChild as HTMLElement | null)
-            ?.addEventListener("keydown", (event) => this.#onKeydown(event));
+        this.target.addEventListener("keydown", (event) => this.#onKeydown(event));
     }
 
     protected getIcon(): IconElement {
@@ -40,12 +39,23 @@ export class FolderElement
         }
     }
 
-    get isCollapsed(): boolean {
-        return this.target.classList.contains("collapsed");
-    }
-    set isCollapsed(value: boolean) {
-        if (value == true) this.target.classList.add("collapsed");
-        else this.target.classList.remove("collapsed");
+    get isCollapsed(): boolean { return this.target.classList.contains("collapsed"); }
+    set isCollapsed(value: boolean) { this.#toggleCollapsed(value, true); }
+    #toggleCollapsed(value: boolean, emitEvent: boolean) {
+        if (this.isCollapsed == value) return;
+
+        if (value == true) {
+            this.target.classList.add("collapsed");
+
+            if (emitEvent)
+                this.context.services.eventService.Emit("folder-collapsed", { target: this });
+        }
+        else {
+            this.target.classList.remove("collapsed");
+
+            if (emitEvent)
+                this.context.services.eventService.Emit("folder-expanded", { target: this });
+        }
     }
 
     override get isFolder(): boolean { return true; }

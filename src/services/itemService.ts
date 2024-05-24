@@ -4,31 +4,29 @@ import { Service } from "./service";
 
 
 export class ItemService extends Service {
-
-
     createNew<T extends FileExplorerItemData>(parentId: string, type: string, data: T): void {
 
+        // TODO: ENSURE THAT ALL PARENTS ARE EXPANDED
+
         const itemId = generateUId()
-        const item = this.context.createItem(type, itemId, data);
-        item.edit = true;
+        const item = this.context.createItem(type, itemId, data, true);
 
-        const siblings = this.context.getItemsByParentId(parentId)
-        const next = siblings.find(x => x.isFolder == item.isFolder) ?? siblings[0]
+        const parent = parentId && this.context.getItemById(parentId);
+        const siblings = this.context.getItemsByParentId(parentId);
 
-        next.before(item);
+        if (siblings.length == 0 && parent)
+            parent.append(item)
+        else if (item.isFolder) {
+            const next = siblings.find(x => x.isFolder == item.isFolder)
+                ?? siblings[0];
 
-        this.services.eventService.Once("edit-cancel", () => item.remove(), event => event.target.id == item.id)
+            next.before(item);
+        }
+        else {
+            const previous = siblings.find(x => x.isFolder == item.isFolder)
+                ?? siblings[siblings.length - 1];
 
-
-        // const previous = this.context.getItemById(itemId)!;
-
-        // const saveData: SaveOptions<ItemData<FileExplorerItemData>> = {}
-
-        // this.services.saveService.Save({
-        //     Data: { items: [
-        //         { Action: }
-        //     ] },
-        //     UndoData: { items: [] }
-        // });
+            previous.after(item);
+        }
     }
 }

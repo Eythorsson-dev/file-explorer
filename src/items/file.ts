@@ -4,7 +4,6 @@ import { FileExplorerItemData, FileExplorerItem, FileExplorerItemElement, FileEx
 
 
 export interface FileData extends FileExplorerItemData {
-    get isCollapsed(): boolean;
 }
 
 export interface File extends FileExplorerItem<FileData> {
@@ -23,6 +22,8 @@ export class FileElement
     }
 
     get data(): FileData {
-        throw new Error("Method not implemented.");
+        return {
+            name: this.name
+        }
     }
 }
