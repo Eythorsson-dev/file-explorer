@@ -11,12 +11,12 @@
   },
   "devDependencies": {
     "jsdom": "^24.0.0",
-    "vitest": "^1.6.0",
     "typescript": "^5.2.2",
-    "vite": "^5.2.0"
+    "vite": "^5.2.0",
+    "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@eythorsson-dev/common-utils": "github:eythorsson-dev/common-utils#main",
+    "@eythorsson-dev/common-utils": "github:eythorsson-dev/common-utils",
     "uuid": "^9.0.1"
   }
 }

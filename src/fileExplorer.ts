@@ -1,14 +1,31 @@
-import { linkedList } from "@eythorsson-dev/common-utils";
-import { generateUId } from "../utils/utils";
+import "./style.css"
+
+import { EventHandlerAPI, EventManager, SaveAPI, generateUId, linkedList } from "@eythorsson-dev/common-utils";
 import { FolderElement } from "./items/folder";
 import { CustomFileExplorerItem, FileExplorerItemElement, initFileExplorerItem, FileExplorerItem } from "./items/fileExplorerItem";
-
-import "./style.css"
 import { FileElement } from "./items/file";
+import { FileExplorerEventMap } from "./events";
+import { ItemService } from "./services/itemService";
+
+
+
+
+export interface EventService extends EventHandlerAPI<FileExplorerEventMap> { };
+
+export interface SaveService extends SaveAPI<ItemData<any>> { }
+
+
+export interface ServiceContext {
+    saveService: SaveService,
+    eventService: EventService,
+
+    itemService: ItemService
+}
+
 
 interface ItemData<T> extends linkedList.ItemData<T> {
     get type(): string
-}
+ }
 
 interface FileExplorerOptions {
     target: HTMLElement,
@@ -21,6 +38,9 @@ export class FileExplorer {
 
     #itemByType: { [key: string]: CustomFileExplorerItem<any> }
 
+    #services: ServiceContext;
+    get services(): ServiceContext { return this.#services }
+
     constructor(options: FileExplorerOptions) {
         this.#target = options.target;
 
@@ -29,6 +49,15 @@ export class FileExplorer {
             "file": FileElement,
             ...options.itemTypes
         }
+
+        this.#services = {
+            eventService: new EventManager(),
+            saveService: this.#createSaveAPI(),
+            itemService: new ItemService({ context: this })
+        }
+    }
+    #createSaveAPI(): SaveService {
+        // throw new Error("Method not implemented.");
     }
 
     get value(): ItemData<any>[] {
@@ -69,8 +98,18 @@ export class FileExplorer {
         );
     }
 
-    getItemById(id: string): FileExplorerItem<any> | undefined {
+    getItemById(id: string): FileExplorerItemElement<any> | undefined {
         return linkedList.getNextOrChildById(this.#rootItem!, id);
+    }
+
+    getItemsByParentId(id: string | undefined): FileExplorerItemElement<any>[] {
+        if (id == undefined)
+            return [this.#rootItem!, ...linkedList.getNextSiblings(this.#rootItem!)]
+
+        const parent = this.getItemById(id);
+        if (parent!.firstChildItem) return [];
+
+        return [parent!.firstChildItem!, ...linkedList.getNextSiblings(parent!.firstChildItem!)];
     }
 
     upsert<T extends ItemData<any>>(data: T): void {

@@ -14,10 +14,11 @@ interface EditableText {
     cancel(): void
 }
 
-function editableText(text: string, edit: boolean): EditableText {
+function editableText(text: string, edit: boolean, onSave?: (text: string) => void, onCancel?: () => void): EditableText {
     const target = document.createElement("div");
     const input = document.createElement("input");
     input.type = "text";
+
 
     const response = {
         target,
@@ -34,11 +35,13 @@ function editableText(text: string, edit: boolean): EditableText {
                 target.replaceChildren(input);
             }
             else {
+                onSave?.(input.value);
                 response.text = input.value;
                 target.replaceChildren(text);
             }
         },
         cancel(): void {
+            onCancel?.();
             response.edit = false;
         },
     }
@@ -82,6 +85,10 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
 
     get name(): string { return this.nameElm?.text ?? "" }
 
+    set edit(value: boolean){
+        this.nameElm!.edit = value
+    }
+
     protected nameElm: EditableText | undefined
     protected abstract getIcon(): IconElement;
 
@@ -123,9 +130,6 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
 
             getNextFileExplorerItem(this)
                 ?.focus();
-            // linkedList
-            //     .getNextItem<FileExplorerItemElement<any>>(this, undefined)
-            //     ?.focus()
         }
         else if (event.code == "ArrowUp") {
             event.stopPropagation();

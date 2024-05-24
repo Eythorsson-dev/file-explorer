@@ -13,3 +13,6 @@ fileExplorer.value = [
     { id: "item03", parentId: "item02", previousId: undefined, type: "file", data: <FolderData>{ name: "node_modules" } },
     { id: "item1", parentId: undefined, previousId: "item0", type: "folder", data: <FolderData>{ name: "src", isCollapsed: true } },
 ]
+
+// fileExplorer.services.itemService.createNew("item02", "folder", { name: "" })
+
