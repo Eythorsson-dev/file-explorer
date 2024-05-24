@@ -1,4 +1,4 @@
-import { IconElement, SaveData, linkedList } from "@eythorsson-dev/common-utils";
+import { IconElement, SaveData, linkedList, onceClickOutside } from "@eythorsson-dev/common-utils";
 import { getPreviousFileExplorerItem } from "../core/getPreviousFileExplorerItem";
 import { getNextFileExplorerItem } from "../core/getNextFileExplorerItem";
 import { FileExplorer, ItemData } from "../fileExplorer";
@@ -206,6 +206,8 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
         },
         () => {
             this.context.services.eventService.Emit("edit", { target: this });
+
+            onceClickOutside(this.#nameElm.target, () => this.cancelEdit())
         }
     );
 
