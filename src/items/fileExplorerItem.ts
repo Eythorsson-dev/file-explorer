@@ -11,6 +11,7 @@ interface EditableText {
 
     get isEditing(): boolean,
 
+    focus(): void;
     edit(): void
     save(): void
     cancel(): void
@@ -50,6 +51,11 @@ function editableText(text: string, isEditing: boolean, onSave?: (text: string) 
         },
 
         get isEditing(): boolean { return isEditing },
+
+        focus(): void {
+            if (isEditing)
+                input.focus();
+        },
 
         edit(): void {
             if (isEditing) return;
@@ -243,7 +249,9 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
     }
 
     focus(): void {
-        if (this.target.firstElementChild)
+        if (this.isEditing)
+            this.#nameElm.focus();
+        else if (this.target.firstElementChild)
             (this.target.firstElementChild as HTMLElement).focus();
     }
 

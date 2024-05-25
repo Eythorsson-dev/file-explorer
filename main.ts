@@ -12,3 +12,12 @@ fileExplorer.value = [
     { id: "item03", parentId: "item02", previousId: undefined, type: "file", data: <FolderData>{ name: "node_modules" } },
     { id: "item1", parentId: undefined, previousId: "item0", type: "folder", data: <FolderData>{ name: "src", isCollapsed: true } },
 ]
+
+
+setTimeout(() => {
+    const command = fileExplorer.commands[1];
+
+    console.log("execute!", command.id);
+
+    command.execute();
+}, 1000)

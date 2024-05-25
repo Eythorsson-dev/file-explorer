@@ -8,6 +8,7 @@ import { FileExplorerEventMap } from "./events";
 import { ItemService } from "./services/itemService";
 import { KeyboardShortcutPlugin } from "./plugins/keyboardShortcutPlugin";
 import { CustomPlugin, initPlugin } from "./plugins/plugin";
+import { CreateFolderCommand, CreateItemCommand, DeleteActiveItemCommand } from "./commands";
 
 export interface EventService extends EventHandlerAPI<FileExplorerEventMap> { };
 
@@ -39,6 +40,13 @@ export class FileExplorer extends linkedList.ItemContainerElement<FileExplorerIt
 
     #services: ServiceContext;
     get services(): ServiceContext { return this.#services }
+
+    get commands(): linkedList.Command<FileExplorer>[] { return this.#commands }
+    #commands: linkedList.Command<FileExplorer>[] = [
+        new CreateFolderCommand(this),
+        new CreateItemCommand(this),
+        new DeleteActiveItemCommand(this)
+    ]
 
     constructor(options: FileExplorerOptions) {
         super(options.target)
