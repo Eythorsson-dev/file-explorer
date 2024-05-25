@@ -67,6 +67,8 @@ export class FolderElement
 
 
     #onKeydown(event: KeyboardEvent) {
+        if (this.isEditing) return;
+        
         if (event.code == "ArrowLeft") {
             if (this.isCollapsed == false) {
                 event.stopPropagation();

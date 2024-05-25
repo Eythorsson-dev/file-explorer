@@ -32,9 +32,8 @@ interface FileExplorerOptions {
     plugins?: { [key: string]: { plugin: CustomPlugin<any>, config?: any } }
 }
 
-export class FileExplorer {
-    #target: HTMLElement;
-    #rootItem: FileExplorerItemElement<any> | undefined;
+
+export class FileExplorer extends linkedList.ItemContainerElement<FileExplorerItemElement<any>> {
 
     #itemByType: { [key: string]: CustomFileExplorerItem<any> }
 
@@ -42,7 +41,7 @@ export class FileExplorer {
     get services(): ServiceContext { return this.#services }
 
     constructor(options: FileExplorerOptions) {
-        this.#target = options.target;
+        super(options.target)
 
         this.#itemByType = {
             "folder": FolderElement,
@@ -62,7 +61,7 @@ export class FileExplorer {
         });
 
     }
-    
+
     #initializePlugins(plugins: { [key: string]: { plugin: CustomPlugin<any>, config?: any } }) {
         Object.values(plugins)
             .forEach(plugin => {
@@ -85,31 +84,8 @@ export class FileExplorer {
                 this.upsert(data);
             },
             Delete: (data) => {
-                this.getItemById(data.id)
-                    ?.remove();
+                this.deleteItemById(data.id);
             },
-        })
-    }
-
-    get value(): ItemData<any>[] {
-        return linkedList.getChildAndNextSiblingData(this.#rootItem!);
-    }
-
-    set value(items: ItemData<any>[]) {
-        linkedList.validateList(items);
-
-        const sortedList = linkedList.sortList(items);
-        if (sortedList.length != items.length)
-            throw new Error("Cannot set value, invalid linked list");
-
-        const oldRoot = this.#rootItem;
-        items.forEach((item, index) => {
-            this.upsert(item);
-
-            if (index == 0) {
-                this.#target.replaceChildren(this.#rootItem!.target);
-                oldRoot?.remove();
-            }
         })
     }
 
@@ -123,29 +99,22 @@ export class FileExplorer {
             itemConfig,
             {
                 id: id,
-                data: data,
                 type: type,
+                data: data,
                 isNew: isNew,
                 context: this
             }
         );
     }
 
-    getItemById(id: string): FileExplorerItemElement<any> | undefined {
-        return linkedList.getNextOrChildById(this.#rootItem!, id);
-    }
 
     getItemsByParentId(id: string | undefined): FileExplorerItemElement<any>[] {
         if (id == undefined)
-            return [this.#rootItem!, ...linkedList.getNextSiblings(this.#rootItem!)]
+            return [this.rootItem!, ...linkedList.getNextSiblings(this.rootItem!)]
 
         const parent = this.getItemById(id);
         if (parent!.firstChildItem == undefined) return [];
 
         return [parent!.firstChildItem!, ...linkedList.getNextSiblings(parent!.firstChildItem!)];
-    }
-
-    upsert<T extends ItemData<any>>(data: T): void {
-        this.#rootItem = linkedList.upsertAndReturnRoot(data, this.#rootItem, () => this.createItem(data.type, data.id, data.data))
     }
 }

@@ -109,13 +109,11 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
 
     protected context: FileExplorer;
     #isNew: boolean = false;
-    #type: string
 
     constructor(options: FileExplorerItemOptions<T>) {
-        super(options.id);
+        super(options.id, options.type);
 
         this.context = options.context;
-        this.#type = options.type;
         this.#isNew = options.isNew;
 
         this.init(options.data);
@@ -197,6 +195,8 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
                     }
                 })
             }
+
+            this.focus()
         },
         () => {
             if (this.#isNew)
@@ -216,13 +216,6 @@ export abstract class FileExplorerItemElement<T extends FileExplorerItemData>
     cancelEdit() { this.#nameElm.cancel(); }
     saveEdit() { this.#nameElm.save(); }
     edit() { this.#nameElm.edit(); }
-
-    getDetails(): ItemData<T> {
-        return {
-            ...super.getDetails(),
-            type: this.#type
-        }
-    }
 
     update(data: T) {
         this.#nameElm!.text = data.name;
